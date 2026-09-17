@@ -1,0 +1,89 @@
+version: '3'
+
+vars:
+  OWNER: '{{default "brawler2011" .OWNER}}'
+  IMAGE_NAME: 'ghcr.io/{{.OWNER}}/short:latest'
+
+tasks:
+  default:
+    cmds:
+      - task: test
+
+  dev:
+    desc: "Run in development mode with frontend build & air hot reload"
+    cmds:
+      - task: build:frontend
+      - air
+
+  build:frontend:
+    desc: "Build frontend using Bun"
+    dir: frontend
+    cmds:
+      - bun install
+      - bun run build
+
+  build:go:
+    desc: "Build Go binary"
+    deps: [build:frontend]
+    cmds:
+      - mkdir -p bin
+      - CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o bin/short .
+
+  build:
+    desc: "Build both frontend and Go binary"
+    cmds:
+      - task: build:go
+
+  lint:go:
+    desc: "Run golangci-lint"
+    cmds:
+      - golangci-lint run .
+
+  lint:frontend:
+    desc: "Run ESLint on frontend"
+    dir: frontend
+    cmds:
+      - bun run lint
+
+  lint:
+    desc: "Run all linters (golangci-lint + eslint)"
+    cmds:
+      - task: lint:go
+      - task: lint:frontend
+
+  test:go:
+    desc: "Run Go unit tests"
+    cmds:
+      - go test -v .
+
+  test:frontend:
+    desc: "Run frontend tests using Bun"
+    dir: frontend
+    cmds:
+      - bun test
+
+  test:
+    desc: "Run all tests (Go + Bun)"
+    cmds:
+      - task: test:go
+      - task: test:frontend
+
+  test:perf:
+    desc: "Run high-concurrency performance and stress tests"
+    cmds:
+      - go test -v -run=TestPerformance .
+
+  bench:
+    desc: "Run Go performance benchmarks with memory allocation stats"
+    cmds:
+      - go test -v -bench=. -benchmem -run=^# .
+
+  docker:build:
+    desc: "Build multi-stage Docker image"
+    cmds:
+      - docker build -t {{.IMAGE_NAME}} .
+
+  docker:push:
+    desc: "Push Docker image to registry"
+    cmds:
+      - docker push {{.IMAGE_NAME}}

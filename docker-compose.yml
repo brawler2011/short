@@ -1,0 +1,26 @@
+services:
+  short:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/short:latest
+    container_name: short
+    restart: unless-stopped
+    environment:
+      BASE_URL: https://short.steins.ru
+      PORT: "8080"
+      DB_PATH: /data/short.db
+    volumes:
+      - short-data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.short.rule=Host(`short.steins.ru`)"
+      - "traefik.http.routers.short.entrypoints=websecure"
+      - "traefik.http.routers.short.tls.certresolver=letsencrypt"
+      - "traefik.http.services.short.loadbalancer.server.port=8080"
+    networks:
+      - traefik
+
+volumes:
+  short-data:
+
+networks:
+  traefik:
+    external: true

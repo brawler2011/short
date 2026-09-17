@@ -1,0 +1,52 @@
+# Binaries & build artifacts
+short
+bin/
+tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+build-errors.log
+*.log
+
+# Data & SQLite databases
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Frontend dependencies & build output
+node_modules/
+frontend/node_modules/
+frontend/dist/*
+!frontend/dist/.gitkeep
+*.tsbuildinfo
+.eslintcache
+.cache/
+
+# Environment files & secrets
+.env
+.env.*
+!.env.example
+
+# IDEs & editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+coverage.txt
+*.coverprofile

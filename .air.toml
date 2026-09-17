@@ -1,0 +1,20 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "./tmp/main"
+  cmd = "cd frontend && bun run build && cd .. && go build -o ./tmp/main ."
+  delay = 500
+  exclude_dir = ["tmp", "vendor", "testdata", "data", ".git", "frontend/node_modules", "frontend/dist"]
+  include_dir = ["frontend/src"]
+  include_ext = ["go", "ts", "tsx", "html", "css"]
+  exclude_regex = ["_test\\.go"]
+  log = "build-errors.log"
+  send_interrupt = true
+  stop_on_error = true
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true
