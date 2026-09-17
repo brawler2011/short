@@ -19,7 +19,30 @@ export default function App() {
   const [status, setStatus] = useState<{
     type: 'idle' | 'success' | 'error'
     message?: string
+    shortUrl?: string
   }>({ type: 'idle' })
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async (text: string) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
 
   const [modalData, setModalData] = useState<ModalState | null>(null)
 
@@ -133,6 +156,7 @@ export default function App() {
         setStatus({
           type: 'success',
           message: 'Ссылка отправлена на экран',
+          shortUrl: data.short_url,
         })
         setUrl('')
       } catch {
@@ -203,7 +227,10 @@ export default function App() {
               value={url}
               onChange={(e) => {
                 setUrl(e.target.value)
-                if (status.type !== 'idle') setStatus({ type: 'idle' })
+                if (status.type !== 'idle') {
+                  setStatus({ type: 'idle' })
+                  setCopied(false)
+                }
               }}
               className="w-full px-4 py-3 bg-bg rounded-xl border border-white/10 focus:border-accent focus:outline-none text-white text-sm placeholder:text-gray-600 transition-colors"
             />
@@ -225,11 +252,56 @@ export default function App() {
 
           {/* Concise green notification or red error directly below input */}
           {status.type === 'success' && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{status.message}</span>
+            <div className="flex flex-col gap-2.5 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
+              <div className="flex items-center gap-2 text-emerald-400 font-medium">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{status.message}</span>
+              </div>
+
+              {status.shortUrl && (
+                <div className="flex items-center gap-2 p-2.5 bg-bg/80 rounded-xl border border-white/10">
+                  <a
+                    href={status.shortUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 min-w-0 font-mono text-xs text-white/90 underline decoration-emerald-500/50 underline-offset-2 hover:text-white break-all select-all"
+                  >
+                    {status.shortUrl}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(status.shortUrl!)}
+                    title={copied ? 'Скопировано!' : 'Скопировать ссылку'}
+                    aria-label="Скопировать ссылку"
+                    className={`p-1.5 rounded-lg transition-colors flex items-center justify-center shrink-0 ${
+                      copied
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {copied ? (
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    ) : (
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="13" height="13" rx="2" strokeWidth={2} />
+                        <path
+                          d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"
+                          strokeWidth={2}
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
