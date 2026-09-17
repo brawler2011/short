@@ -1,6 +1,6 @@
 module github.com/steins/short
 
-go 1.25.0
+go 1.27.1
 
 require (
 	github.com/google/uuid v1.6.0
