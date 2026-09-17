@@ -37,7 +37,7 @@ tasks:
   lint:go:
     desc: "Run golangci-lint"
     cmds:
-      - golangci-lint run .
+      - golangci-lint run ./...
 
   lint:frontend:
     desc: "Run ESLint on frontend"

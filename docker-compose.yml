@@ -13,14 +13,16 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.short.rule=Host(`short.steins.ru`)"
       - "traefik.http.routers.short.entrypoints=websecure"
+      - "traefik.http.routers.short.tls=true"
       - "traefik.http.routers.short.tls.certresolver=letsencrypt"
       - "traefik.http.services.short.loadbalancer.server.port=8080"
     networks:
-      - traefik
+      - traefik-network
 
 volumes:
   short-data:
 
 networks:
-  traefik:
+  traefik-network:
+    name: traefik-network
     external: true
